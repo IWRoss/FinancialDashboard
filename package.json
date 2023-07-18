@@ -1,0 +1,26 @@
+{
+  "name": "financialdashboard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "lodash": "^4.17.21",
+    "memorystore": "^1.6.7",
+    "node-cron": "^3.0.2",
+    "xero-node": "^4.35.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
