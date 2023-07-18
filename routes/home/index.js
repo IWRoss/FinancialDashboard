@@ -12,7 +12,7 @@ const {
 
 router.get("/", async (req, res) => {
   // Show a welcome message
-  res.send("Nothing to see here");
+  res.send("Still nothing to see here");
 });
 
 /**
