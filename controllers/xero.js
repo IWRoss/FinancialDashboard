@@ -110,12 +110,12 @@ const getProfitAndLoss = async () => {
     // Get the Profit and Loss report
     const report = await xero.accountingApi.getReportProfitAndLoss(
       process.env.XERO_TENANT_ID,
-      // One year ago as YYYY-MM-DD
-      new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+      // First day of the month as YYYY-MM-DD
+      new Date().toISOString().split("T")[0].slice(0, 8) + "01",
+      // Last day of the month as YYYY-MM-DD
+      new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
         .toISOString()
         .split("T")[0],
-      // Today as YYYY-MM-DD
-      new Date().toISOString().split("T")[0],
       11,
       "MONTH"
     );
@@ -200,7 +200,7 @@ const findSummaryRowByTitle = (report, title) => {
 const processReport = async () => {
   const report = await getProfitAndLoss();
 
-  console.log(report);
+  // console.log(report);
 
   if (!report) {
     return false;
@@ -248,7 +248,7 @@ const processReport = async () => {
       return new Date(a.date) - new Date(b.date);
     });
 
-  console.log(processedReport);
+  // console.log(processedReport);
 
   return processedReport;
 };
