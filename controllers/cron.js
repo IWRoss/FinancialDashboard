@@ -2,11 +2,12 @@ const { calculateStockPrice } = require("../utils");
 
 // fs
 const fs = require("fs");
+const path = require("path");
 
 module.exports = (session) => {
   const cron = require("node-cron");
 
-  const { xero } = require("./xero");
+  const { xero, processReport } = require("./xero");
 
   const runTime = parseInt(process.env.DEBUG_CRON) ? "* * * * *" : "0 * * * *";
 
@@ -26,9 +27,15 @@ module.exports = (session) => {
           await xero.refreshToken();
         }
 
-        const report = await getProfitAndLoss();
+        const report = await processReport();
 
         console.log(report);
+
+        // Store in file
+        fs.writeFileSync(
+          path.join(__dirname, "../report.json"),
+          JSON.stringify(report)
+        );
       },
       {
         scheduled: true,

@@ -29,11 +29,9 @@ router.get(`/${process.env.XERO_TENANT_ID}`, async (req, res) => {
  * URL for showing the content of stockChangeData.json
  */
 router.get(`/${process.env.STOCK_SECRET}`, async (req, res) => {
-  const report = await processReport();
-
-  // const report = JSON.parse(
-  //   fs.readFileSync(path.join(__dirname, "../../samplePL.json"))
-  // );
+  const report = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "../../report.json"))
+  );
 
   res.send(report);
 });

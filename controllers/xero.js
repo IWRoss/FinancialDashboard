@@ -104,7 +104,7 @@ const getProfitAndLoss = async () => {
   //   return report;
   // }
 
-  // console.log("Getting Profit and Loss report");
+  console.log("Getting Profit and Loss report");
 
   try {
     // Get the Profit and Loss report
@@ -198,6 +198,8 @@ const findSummaryRowByTitle = (report, title) => {
  * @returns
  */
 const processReport = async () => {
+  console.log("Processing report");
+
   const report = await getProfitAndLoss();
 
   // console.log(report);
