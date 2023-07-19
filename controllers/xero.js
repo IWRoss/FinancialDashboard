@@ -145,6 +145,21 @@ const getInvoices = async () => {
   }
 };
 
+/** */
+const getBankSummary = async () => {
+  try {
+    const bankSummary = await xero.accountingApi.getReportBankSummary(
+      process.env.XERO_TENANT_ID
+    );
+
+    return bankSummary.body;
+  } catch (error) {
+    console.error(error.response.body);
+
+    return false;
+  }
+};
+
 /**
  *
  * @param {*} report
@@ -255,10 +270,115 @@ const processReport = async () => {
   return processedReport;
 };
 
+/**
+ *
+ */
+const processBankSummary = async () => {
+  console.log("Processing bank summary");
+
+  const report = await getBankSummary();
+
+  // console.log(report);
+
+  if (!report) {
+    return false;
+  }
+
+  const iwAccountRow = findRowByTitle(report, "Interactive Workshops");
+
+  const reserveAccountRow = findRowByTitle(report, "Reserve Account 1");
+
+  return {
+    iwAccount: iwAccountRow[3],
+    reserveAccount: reserveAccountRow[3],
+  };
+};
+
+/**
+ *
+ */
+const processCashFlow = async () => {
+  console.log("Processing cash flow");
+
+  const averageYearlyExpenses = 2040000;
+
+  const cashFlowTransactions = [];
+
+  const startingBalance = await processBankSummary();
+
+  cashFlowTransactions.push({
+    date: new Date(),
+    transaction:
+      parseFloat(startingBalance.iwAccount) +
+      parseFloat(startingBalance.reserveAccount),
+  });
+
+  // Add daily expenses
+  for (let i = 0; i < 365; i++) {
+    const date = new Date();
+
+    date.setDate(date.getDate() + i);
+
+    cashFlowTransactions.push({
+      date: date,
+      transaction: Math.round((averageYearlyExpenses / 365) * -100) / 100,
+    });
+
+    // Add quarterly tax payments based on the
+  }
+
+  // Add all invoices on their due date
+  const invoices = await processInvoices();
+
+  if (invoices) {
+    cashFlowTransactions.push(...invoices);
+  }
+
+  return cashFlowTransactions.sort((a, b) => {
+    return new Date(a.date) - new Date(b.date);
+  });
+};
+
+/**
+ *
+ */
+const processInvoices = async () => {
+  console.log("Processing invoices");
+
+  const invoices = await getInvoices();
+
+  // console.log(invoices);
+
+  if (!invoices) {
+    return false;
+  }
+
+  // Filter out the invoices that are paid
+  const unpaidInvoices = invoices.invoices.filter(
+    (invoice) => invoice.amountDue > 0
+  );
+
+  // Filter out the invoices with a due date in the past and no more than 365 days in the future
+  const futureInvoices = unpaidInvoices.filter(
+    (invoice) =>
+      new Date(invoice.dueDate) > new Date() &&
+      new Date(invoice.dueDate) < new Date().setDate(new Date().getDate() + 365)
+  );
+
+  return futureInvoices.map((invoice) => ({
+    date: new Date(invoice.dueDate),
+    transaction: invoice.amountDue,
+  }));
+};
+
 module.exports = {
   xero,
   getAccessToken,
   authorizeXero,
   getProfitAndLoss,
   processReport,
+  getBankSummary,
+  processBankSummary,
+  processCashFlow,
+  processInvoices,
 };

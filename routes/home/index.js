@@ -7,7 +7,8 @@ const path = require("path");
 const {
   xero,
   getAccessToken,
-  processReport,
+  processCashFlow,
+  processInvoices,
 } = require("../../controllers/xero");
 
 router.get("/", async (req, res) => {
@@ -34,6 +35,20 @@ router.get(`/${process.env.STOCK_SECRET}`, async (req, res) => {
   );
 
   res.send(report);
+});
+
+router.get("/bank", async (req, res) => {
+  const cashFlow = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "../../cashFlow.json"))
+  );
+
+  res.send(cashFlow);
+});
+
+router.get("/invoices", async (req, res) => {
+  const invoices = await processInvoices();
+
+  res.send(invoices);
 });
 
 /**
