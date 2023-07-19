@@ -37,7 +37,7 @@ router.get(`/${process.env.STOCK_SECRET}`, async (req, res) => {
   res.send(report);
 });
 
-router.get("/bank", async (req, res) => {
+router.get(`/${process.env.BANK_SECRET}`, async (req, res) => {
   const cashFlow = JSON.parse(
     fs.readFileSync(path.join(__dirname, "../../cashFlow.json"))
   );
