@@ -321,10 +321,8 @@ const processCashFlow = async () => {
 
     cashFlowTransactions.push({
       date: date,
-      transaction: Math.round((averageYearlyExpenses / 365) * -100) / 100,
+      transaction: (averageYearlyExpenses / 365) * -1,
     });
-
-    // Add quarterly tax payments based on the
   }
 
   // Add all invoices on their due date
@@ -334,9 +332,21 @@ const processCashFlow = async () => {
     cashFlowTransactions.push(...invoices);
   }
 
-  return cashFlowTransactions.sort((a, b) => {
-    return new Date(a.date) - new Date(b.date);
-  });
+  // Add quarterly tax payments
+  const taxPayments = await processQuarterlyVATPayments();
+
+  if (taxPayments) {
+    cashFlowTransactions.push(...taxPayments);
+  }
+
+  return cashFlowTransactions
+    .map((transaction) => ({
+      ...transaction,
+      transaction: parseFloat(transaction.transaction.toFixed(2)),
+    }))
+    .sort((a, b) => {
+      return new Date(a.date) - new Date(b.date);
+    });
 };
 
 /**
@@ -371,6 +381,84 @@ const processInvoices = async () => {
   }));
 };
 
+/**
+ *
+ */
+const processQuarterlyVATPayments = async () => {
+  console.log("Processing quarterly revenue");
+
+  const invoices = await getInvoices();
+
+  // console.log(invoices);
+
+  if (!invoices) {
+    return false;
+  }
+
+  const proportionOfRevenuePaid = 0.75;
+
+  const proportionOfRevenueQualifiesForVAT = 0.17;
+
+  const revenueMultiplier =
+    proportionOfRevenuePaid * proportionOfRevenueQualifiesForVAT;
+
+  const currentQuarterStartDate = new Date(
+    new Date().getFullYear(),
+    Math.floor(new Date().getMonth() / 3) * 3,
+    1
+  );
+
+  // Factor in the current quarter and the next 4 quarters
+  const quarters = new Array(5).fill("").map((quarter, index) => {
+    const date = new Date(currentQuarterStartDate);
+
+    const startDate = date.setMonth(date.getMonth() + index * 3);
+
+    // endDate is 3 months after the start date
+    const endDate = new Date(startDate).setMonth(
+      new Date(startDate).getMonth() + 3
+    );
+
+    return {
+      startDate,
+      endDate,
+    };
+  });
+
+  // Group invoices by quarter
+  const invoicesByQuarter = invoices.invoices.reduce(
+    (acc, invoice) => {
+      const invoiceDate = new Date(invoice.dueDate);
+
+      const quarterIndex = quarters.findIndex((quarter) => {
+        return (
+          invoiceDate >= new Date(quarter.startDate) &&
+          invoiceDate < new Date(quarter.endDate)
+        );
+      });
+
+      invoice = { ...invoice, quarterIndex };
+
+      if (quarterIndex === -1) {
+        return acc;
+      }
+
+      // Add the invoice to the correct quarter
+      acc[quarterIndex].push(invoice);
+
+      return acc;
+    },
+    [[], [], [], [], []]
+  );
+
+  return invoicesByQuarter.map((quarter, index) => ({
+    date: new Date(quarters[index].endDate),
+    transaction: quarter.reduce((acc, invoice) => {
+      return acc + parseFloat(invoice.total) * revenueMultiplier * -1;
+    }, 0),
+  }));
+};
+
 module.exports = {
   xero,
   getAccessToken,
@@ -381,4 +469,5 @@ module.exports = {
   processBankSummary,
   processCashFlow,
   processInvoices,
+  processQuarterlyVATPayments,
 };

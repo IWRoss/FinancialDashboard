@@ -8,7 +8,7 @@ const {
   xero,
   getAccessToken,
   processCashFlow,
-  processInvoices,
+  processQuarterlyVATPayments,
 } = require("../../controllers/xero");
 
 router.get("/", async (req, res) => {
@@ -43,12 +43,6 @@ router.get(`/${process.env.BANK_SECRET}`, async (req, res) => {
   );
 
   res.send(cashFlow);
-});
-
-router.get("/invoices", async (req, res) => {
-  const invoices = await processInvoices();
-
-  res.send(invoices);
 });
 
 /**
