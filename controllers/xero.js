@@ -459,10 +459,15 @@ const processQuarterlyVATPayments = async () => {
   }));
 };
 
+const isAuthorized = async () => {
+  return (await getProfitAndLoss()) !== false;
+};
+
 module.exports = {
   xero,
   getAccessToken,
   authorizeXero,
+  isAuthorized,
   getProfitAndLoss,
   processReport,
   getBankSummary,

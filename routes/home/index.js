@@ -9,6 +9,7 @@ const {
   getAccessToken,
   processCashFlow,
   processQuarterlyVATPayments,
+  isAuthorized,
 } = require("../../controllers/xero");
 
 router.get("/", async (req, res) => {
@@ -54,6 +55,15 @@ router.get("/xero/callback", async (req, res) => {
   await getAccessToken(req, res);
 
   res.send();
+});
+
+/**
+ * Status
+ */
+router.get("/status", async (req, res) => {
+  let status = await isAuthorized();
+
+  res.send(status);
 });
 
 module.exports = router;
