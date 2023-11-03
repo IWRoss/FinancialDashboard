@@ -61,6 +61,8 @@ router.get("/xero/callback", async (req, res) => {
  * Status
  */
 router.get("/status", async (req, res) => {
+  await xero.initialize();
+
   let status = await isAuthorized();
 
   res.send(status);
