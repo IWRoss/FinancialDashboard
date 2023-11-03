@@ -460,6 +460,13 @@ const processQuarterlyVATPayments = async () => {
 };
 
 const isAuthorized = async () => {
+  const tokenSet = xero.readTokenSet();
+
+  if (tokenSet.expired()) {
+    console.log("Token expired, refreshing");
+    await xero.refreshToken();
+  }
+
   return (await getProfitAndLoss()) !== false;
 };
 
