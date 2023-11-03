@@ -9,7 +9,10 @@ module.exports = (session) => {
 
   const { xero, processReport, processCashFlow } = require("./xero");
 
-  const runTime = parseInt(process.env.DEBUG_CRON) ? "* * * * *" : "0 * * * *";
+  // If debug, run every minute. Otherwise, run every 10 minutes
+  const runTime = parseInt(process.env.DEBUG_CRON)
+    ? "* * * * *"
+    : "*/10 * * * *";
 
   const runCron = async () => {
     console.log("Cron job started");
