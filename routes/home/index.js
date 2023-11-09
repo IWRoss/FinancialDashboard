@@ -10,6 +10,7 @@ const {
   processCashFlow,
   processQuarterlyVATPayments,
   getYearProfitAndLoss,
+  processYTDProfitAndLossReport,
   processReport,
   isAuthorized,
 } = require("../../controllers/xero");

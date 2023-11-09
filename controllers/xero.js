@@ -133,6 +133,8 @@ const getYearProfitAndLoss = async () => {
       "YEAR"
     );
 
+    console.dir(report.body);
+
     return report.body;
   } catch (error) {
     console.error(error.response.body);
@@ -251,6 +253,9 @@ const processReport = async (report) => {
   // Get the total sales
   const totalSales = findSummaryRowByTitle(report, "Billable Income");
 
+  // Get the total sales
+  const totalIncome = findRowByTitle(report, "Total Income");
+
   // Operating Profit
   const operatingProfit = findRowByTitle(report, "Operating Profit");
 
@@ -263,6 +268,7 @@ const processReport = async (report) => {
         date: row,
         costOfSales: totalCostOfSales[index],
         totalSales: totalSales[index],
+        totalIncome: totalIncome[index],
         partnershipSales: partnershipSales[index],
         nonPartnershipSales: totalSales[index] - partnershipSales[index],
         operatingExpenses: totalOperatingExpenses[index],
