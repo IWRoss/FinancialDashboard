@@ -94,16 +94,6 @@ const getAccessToken = async (req, res) => {
  *
  */
 const getProfitAndLoss = async () => {
-  // Get old report from session
-
-  // if (process.env.USE_SAMPLE_DATA) {
-  //   const report = JSON.parse(
-  //     fs.readFileSync(path.join(__dirname, "../samplePL.json"))
-  //   );
-
-  //   return report;
-  // }
-
   console.log("Getting Profit and Loss report");
 
   try {
@@ -118,6 +108,29 @@ const getProfitAndLoss = async () => {
         .split("T")[0],
       11,
       "MONTH"
+    );
+
+    return report.body;
+  } catch (error) {
+    console.error(error.response.body);
+
+    return false;
+  }
+};
+
+const getYearProfitAndLoss = async () => {
+  console.log("Getting Profit and Loss report");
+
+  try {
+    // Get the Profit and Loss report
+    const report = await xero.accountingApi.getReportProfitAndLoss(
+      process.env.XERO_TENANT_ID,
+      // First day of year as YYYY-MM-DD
+      new Date().getFullYear() + "-01-01",
+      // Today as YYYY-MM-DD
+      new Date().toISOString().split("T")[0],
+      "",
+      "YEAR"
     );
 
     return report.body;
@@ -212,12 +225,8 @@ const findSummaryRowByTitle = (report, title) => {
  *
  * @returns
  */
-const processReport = async () => {
+const processReport = async (report) => {
   console.log("Processing report");
-
-  const report = await getProfitAndLoss();
-
-  // console.log(report);
 
   if (!report) {
     return false;
@@ -268,6 +277,24 @@ const processReport = async () => {
   // console.log(processedReport);
 
   return processedReport;
+};
+
+/**
+ *
+ */
+const processProfitAndLossReport = async () => {
+  const report = await getProfitAndLoss();
+
+  return await processReport(report);
+};
+
+/**
+ *
+ */
+const processYTDProfitAndLossReport = async () => {
+  const report = await getYearProfitAndLoss();
+
+  return await processReport(report);
 };
 
 /**
@@ -476,7 +503,10 @@ module.exports = {
   authorizeXero,
   isAuthorized,
   getProfitAndLoss,
+  getYearProfitAndLoss,
   processReport,
+  processProfitAndLossReport,
+  processYTDProfitAndLossReport,
   getBankSummary,
   processBankSummary,
   processCashFlow,

@@ -9,6 +9,8 @@ const {
   getAccessToken,
   processCashFlow,
   processQuarterlyVATPayments,
+  getYearProfitAndLoss,
+  processReport,
   isAuthorized,
 } = require("../../controllers/xero");
 
@@ -44,6 +46,14 @@ router.get(`/${process.env.BANK_SECRET}`, async (req, res) => {
   );
 
   res.send(cashFlow);
+});
+
+router.get(`/${process.env.PL_SECRET}`, async (req, res) => {
+  const ytd = JSON.parse(
+    fs.readFileSync(path.join(__dirname, "../../ytd.json"))
+  );
+
+  res.send(ytd);
 });
 
 /**

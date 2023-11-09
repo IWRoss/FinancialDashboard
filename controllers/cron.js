@@ -7,7 +7,12 @@ const path = require("path");
 module.exports = (session) => {
   const cron = require("node-cron");
 
-  const { xero, processReport, processCashFlow } = require("./xero");
+  const {
+    xero,
+    processProfitAndLossReport,
+    processYTDProfitAndLossReport,
+    processCashFlow,
+  } = require("./xero");
 
   // If debug, run every minute. Otherwise, run every 10 minutes
   const runTime = parseInt(process.env.DEBUG_CRON)
@@ -31,9 +36,7 @@ module.exports = (session) => {
         }
 
         // Get the report
-        const report = await processReport();
-
-        console.log(report);
+        const report = await processProfitAndLossReport();
 
         // Store in file
         fs.writeFileSync(
@@ -47,6 +50,16 @@ module.exports = (session) => {
         fs.writeFileSync(
           path.join(__dirname, "../cashFlow.json"),
           JSON.stringify(cashFlow)
+        );
+
+        // Get the YTD
+        const ytdReport = await processYTDProfitAndLossReport();
+
+        console.log(ytdReport);
+
+        fs.writeFileSync(
+          path.join(__dirname, "../ytd.json"),
+          JSON.stringify(ytdReport)
         );
       },
       {
